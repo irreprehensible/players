@@ -12,8 +12,6 @@
   <body ng-controller="MainCtrl">
     <div class="navbar navbar-inverse">
       <div class="navbar-inner">
-        <a class="brand" href="#">Players</a>
-        <button id="createButton" ng-click="createNote()" class="btn btn-info pull-right">Create Note</button>
       </div>
     </div>
     <div class="well-sm" style="width:45%;margin:0 auto">
@@ -21,19 +19,88 @@
         <div class="col-md-3"><label>You are::</label></div>
         <div class="col-md-3"><input type="text" ng-model="playerName"></div>
       </div>
+      <div class="row ">
+        <div class="col-md-6 text-center">game list</div>
+      </div>
       <div class="row" ng-repeat="g in games" style="border-bottom:1px solid #ccc">
         <div class="col-md-4">{{g.gameName}}</div>
         <div class="col-md-4">{{g.gamePlayers}}</div>
-        <div class="col-md-4"><button ng-click="join(g.gameId)"><img src={{g.gamePic}}></button></div>
+        <div class="col-md-4"><button ng-click="joinGame(g.gameId)"><img src={{g.gamePic}}></button></div>
       </div>
     </div>
     <div class="well">
+      <input type="hidden" id="hidGameId" />
+      <input type="hidden" id="hidPlayerId" />
+      <div class="row">
+        <div class="col-md-6 text-center">Players</div>
+      </div>
       <div class="row">
         <div class="col-md-6">
-
+            <div class="row" ng-repeat="p in players" style="border-bottom:1px solid #ccc">
+                <div class="col-md-4">{{p.playerName}}</div>
+                <div class="col-md-4">{{p.playerTyping}}</div>
+                <div class="col-md-4"><button><img src={{p.playerPic}}></button></div>
+              </div>
         </div>
         <div class="col-md-6">
-
+          <div class="row">
+            <form class="form-horizontal"  ng-submit="updateGame()" name="frmGame" novalidate>
+              <input type="hidden" id="hidGameId" value="" />
+              <input type="hidden" id="hidPlayerId" value="" />
+              <input type="hidden" id="hidPlayerAv" value="" />
+              <div class="row blueBg">
+                  <div class="col-md-9 col-xs-9 text-center " >
+                      <div class="alphabet js-alphabet">{{alphabet}}</div>
+                  </div>
+                  <div class="col-md-3 col-xs-3 text-center">
+                      <div id="gameStartedIndicator" data-ng-class="gameStartedIndicatorClass()" style="font-size: 23px;padding: 8px;" title="waiting to get started..."></div>
+                  </div>
+              </div>
+              <div class="row" style="padding-top:9px">
+                  <div class="col-md-12">
+                      <label for="txtName" aria-label="txtName">Name</label>&nbsp;&nbsp;<i ng-class="nameValid()"></i>
+                  </div>
+                  <div class="col-md-12">
+                      <input type="text" id="txtName" name="txtName" class="form-control" data-ng-model="playingGame.name" ng-change="typing()" autocomplete="none" required/>
+                  </div>
+              </div>
+              <div class="row">
+                  <div class="col-md-12">
+                      <label for="txtPlace" aria-label="txtPlace">Place</label>&nbsp;&nbsp;<i ng-class="placeValid()"></i>
+                  </div>
+                  <div class="col-md-12">
+                      <input type="text" id="txtPlace" name="txtPlace" class="form-control" data-ng-model="playingGame.place" autocomplete="none" required/>
+                  </div>
+              </div>
+              <div class="row">
+                  <div class="col-md-12">
+                      <label for="txtAnimal" aria-label="txtAnimal">Animal</label>&nbsp;&nbsp;<i ng-class="animalValid()"></i>
+                  </div>
+                  <div class="col-md-12">
+                      <input type="text" id="txtAnimal" name="txtAnimal" class="form-control" data-ng-model="playingGame.animal" autocomplete="none" required/>
+                  </div>
+              </div>
+              <div class="row">
+                  <div class="col-md-12">
+                      <label for="txtThing" aria-label="txtThing">Thing</label>&nbsp;&nbsp;<i ng-class="thingValid()"></i>
+                  </div>
+                  <div class="col-md-12">
+                      <input type="text" id="txtThing" name="txtThing" class="form-control" data-ng-model="playingGame.thing" autocomplete="none" required/>
+                  </div>
+              </div>
+              <div class="row" style="padding-top:9px">
+                      <div class="col-xs-9" style="text-align:right">
+                          <button class="btn btn-primary btn-lg" >Submit</button>
+                      </div>
+              </div>
+              
+            </form>
+          </div>
+          <div class="row">
+              <div class="col-md-12">
+                <div id="divStatus">status</div>
+              </div>
+            </div>
         </div>
       </div>
     </div>
