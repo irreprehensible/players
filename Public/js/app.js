@@ -35,30 +35,31 @@ var app = angular.module('app', [  ]);
       $scope.games.push(game);
     }
     $scope.joinGame = function(id){
-      socket.emit('joinGame', id);
-      socket.on('joined',function(data) {
-        $('#divStatus').html(data);
-      });
+      
       let playerid = `PLA-${id.split('-')[1]}-${Date.now()}-sff`;
       var player = {playerId:playerid,playerName:$scope.playerName,playerTyping:'',playerPic:'/images/pic.png'};
-      $scope.players.push(player);
       $('#hidGameId').val(id);
       $('#hidPlayerId').val(playerid)
-      let g = {gameId:id,playerId:playerid,playerName:$scope.playerName};
-      $http.post('/join',JSON.stringify(g))
-      .then(function (result) {
-        
-        console.log(result);
-      },
-      function(error){
-          alert(error.statusText);
-          $scope.wait = false;
+      let g = {gameId:id,player:player};
+      socket.emit('joinGame', g);
+      socket.on('joined',function(player) {
+        $('#divStatus').html(`${player.playerName} has joined...`);
+        $scope.players.push(player);
+        $http.post('/join',JSON.stringify(g))
+        .then(function (result) {
+          console.log(result);
+        },
+        function(error){
+            alert(error.statusText);
+            $scope.wait = false;
+        });
       });
     }
 
     $scope.typing = function(){
       socket.emit('typing', `${$('#hidGameId').val()}~${$('#hidPlayerId').val()}~name`);
       socket.on('onTyping',function(data){
+        console.log('typing evt');
         if($('#hidGameId').val() == data[0]){
           $.each($scope.players,function(i,v){
             if(v.playerId == data[1]){
@@ -66,6 +67,20 @@ var app = angular.module('app', [  ]);
             }
           });
         }
+      })
+    }
+
+    $scope.gameStart = function(){
+      socket.emit('gameStarted', `${$('#hidGameId').val()}`);
+      socket.on('gameStarted',function(gameId) {
+        //change icon
+        console.log('game start evt');
+        if($('#hidGameId').val() == gameId){
+          $('#btnGameStarted').css('background-color','green');
+        }
+        //start ticks 
+        //set state in db to started
+
       })
     }
 });
