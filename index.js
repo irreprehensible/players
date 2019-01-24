@@ -17,7 +17,8 @@ io.sockets.on('connection', function(socket) {
 		io.sockets.in(`room-${val[0]}`).emit('onTyping', val);
 	});
 	socket.on('gameStarted', function(gameId) { 
-		io.sockets.in(`room-${gameId}`).emit('gameStarted', gameId);
+		console.log('gamestrated');
+		io.sockets.in(`room-${gameId}`).emit('onGameStarted', gameId);
 	});
 });
 app.post('/join',(req,res)=>{

@@ -72,7 +72,7 @@ var app = angular.module('app', [  ]);
 
     $scope.gameStart = function(){
       socket.emit('gameStarted', `${$('#hidGameId').val()}`);
-      socket.on('gameStarted',function(gameId) {
+      socket.on('onGameStarted',function(gameId) {
         //change icon
         console.log('game start evt');
         if($('#hidGameId').val() == gameId){
