@@ -5,9 +5,10 @@ var io = require('socket.io')(server);
 
 app.use(express.static(__dirname + '/public'));
 app.use(express.json());
-
 io.sockets.on('connection', function(socket) {
-	console.log('someone connected');
+	//socket.id=Math.random();
+	console.log(`someone connected ${socket.id}`);
+	
 	socket.on('joinGame', function(g) { // is game id
 		socket.join(`room-${g.gameId}`);
 		io.sockets.in(`room-${g.gameId}`).emit('joined', g.player);

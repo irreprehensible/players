@@ -5,7 +5,8 @@
         <script src="http://code.jquery.com/jquery-1.8.3.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.1/angular.js"></script>
         <script src="js/app.js"></script>
-
+        <script src="js/jquery.countdown.js"></script>
+        <link href="css/jquery.countdown.css" rel="stylesheet">       
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   </head>
 
@@ -59,6 +60,7 @@
                   </div>
                   <div class="col-xs-3 col-xs-3 text-center">
                       <div id="gameStartedIndicator" data-ng-class="gameStartedIndicatorClass()" style="font-size: 23px;padding: 8px;" title="waiting to get started..."></div>
+                      <div id="gameTimer" style="display:none;background-color:whitesmoke">00:00</div>
                   </div>
               </div>
               <div class="row" style="padding-top:9px">

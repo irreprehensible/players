@@ -76,7 +76,15 @@ var app = angular.module('app', [  ]);
         //change icon
         console.log('game start evt');
         if($('#hidGameId').val() == gameId){
-          $('#btnGameStarted').css('background-color','green');
+          $('#btnGameStarted').hide();
+          $('#gameTimer').show();
+          $("#gameTimer").countdown({
+            "seconds": 10,
+            "warning-time": 5,
+            "normal-class":"countdown-normal",
+            "warning-class":"countdown-warning",
+            "stop-class":"countdown-stop"
+           });
         }
         //start ticks 
         //set state in db to started
