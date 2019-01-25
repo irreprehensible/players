@@ -39,11 +39,14 @@
                 timer = setInterval(function () {
                     settings['seconds']--;
                     draw();
+                    
                 }, 1000);
                 ongoing = true;
             }
         });
-        
+        var callback = function(){
+            alert();
+        }
         $(settings['selector-pause']).bind("click", function () {
             clearInterval(timer);
             ongoing = false;
@@ -57,6 +60,8 @@
             timer = setInterval(function () {
                 settings['seconds']--;
                 draw();
+                if(settings['seconds']==0)
+                        alert('done')
             }, 1000);
         }
     };
