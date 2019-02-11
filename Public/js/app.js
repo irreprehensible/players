@@ -24,23 +24,23 @@ var app = angular.module('app', [  ]);
     };
   });
 
-  app.controller('MainCtrl', function($scope,$http, socket) {
+app.controller('MainCtrl', function($scope,$http, socket) {
     $scope.games = [];
     $scope.players=[];
 
     for(var i=1;i<3;i++){
-      var game = {gameId:`gam-${i}sar${i}-dede-343434343-dff${i}`,gameName:`${i}sardines${i}`,gamePic:'/images/pic.png',gamePlayers:0};
+      var game = {gameId:`g-${i}sar${i}-dhde-343-dff${i}`,gameName:`${i}sardines${i}`,gamePic:'/images/pic.png',gamePlayers:0};
       $scope.games.push(game);
     }
 
     $scope.joinGame = function(id){
-      let playerid = `PLA-${id.split('-')[1]}-${Date.now()}-sff`;
+      let playerid = `P-${id.split('-')[1]}-${$scope.playerName}-pic-sff`;
       var player = {playerId:playerid,playerName:$scope.playerName,playerTyping:'',playerPic:'/images/pic.png'};
-      $scope.players.push(player);
+      let g = {gameId:id,player:player};
+      socket.emit('joinGame', g);
       $('#hidGameId').val(id);
       $('#hidPlayerId').val(playerid)
-      let g = {gameId:id,players:$scope.players};
-      socket.emit('joinGame', g);
+      
       $http.post('/join',JSON.stringify(g))
       .then(function (result) {
         console.log(result);
@@ -51,29 +51,18 @@ var app = angular.module('app', [  ]);
       });
     }
     socket.on('joined',function(g) {
-      $scope.players.push(player);
-      //playerArray = g.players.filter(function(val){ !$scope.players.includes(val)});
-      // var j=0;
-      // $.each($scope.players,function(i,v){
-      //   if(j==g.players.length){
-      //     $('#divStatus').html(`${v.playerName} has joined`);
-      //     $scope.players = g.players;
-      //     return false;
-      //   }
-      //   for(;j<g.players.length;j++){
-      //     if(v.playerId==g.players[j].playerId){}
-      //     else{
-            $('#divStatus').html(`${g.players.playerName} has joined`);
-            $scope.players = g.players;
-      //       return false;
-      //     }
-      //   }
-      // });
-      
+      let p='';
+      $.each($scope.players,function(i,v){
+        if(!g.gamePlayers.includes(v)){
+          p=v.playerName
+        }
+      });
+      $('#divStatus').html(`${p} has joined`);
+      $scope.players=g.gamePlayers;
     });
 
-    $scope.typing = function(){
-      socket.emit('typing', `${$('#hidGameId').val()}~${$('#hidPlayerId').val()}~name`);
+    $scope.typing = function(v){
+      socket.emit('typing', `${$('#hidGameId').val()}~${$('#hidPlayerId').val()}~${v}`);
     }
     socket.on('onTyping',function(data){
       if($('#hidGameId').val() == data[0]){
@@ -83,7 +72,7 @@ var app = angular.module('app', [  ]);
           }
         });
       }
-    })
+    });
 
     $scope.gameStart = function(){
       socket.emit('playStarted', `${$('#hidGameId').val()}`);
@@ -104,5 +93,5 @@ var app = angular.module('app', [  ]);
       }  
       //start ticks 
       //set state in db to started
-    })
+    });
 });
