@@ -27,7 +27,7 @@ var app = angular.module('app', [  ]);
 app.controller('MainCtrl', function($scope,$http, socket) {
     $scope.games = [];
     $scope.players=[];
-
+    $scope.alphabet='...';
     for(var i=1;i<3;i++){
       var game = {gameId:`g-${i}sar${i}-dhde-343-dff${i}`,gameName:`${i}sardines${i}`,gamePic:'/images/pic.png',gamePlayers:0};
       $scope.games.push(game);
@@ -40,58 +40,68 @@ app.controller('MainCtrl', function($scope,$http, socket) {
       socket.emit('joinGame', g);
       $('#hidGameId').val(id);
       $('#hidPlayerId').val(playerid)
-      
-      $http.post('/join',JSON.stringify(g))
-      .then(function (result) {
-        console.log(result);
-      },
-      function(error){
-          alert(error.statusText);
-          $scope.wait = false;
-      });
     }
-    socket.on('joined',function(g) {
+    socket.on('joined',function(data) {
       let p='';
       $.each($scope.players,function(i,v){
-        if(!g.gamePlayers.includes(v)){
+        if(!data.g.gamePlayers.includes(v)){
           p=v.playerName
         }
       });
       $('#divStatus').html(`${p} has joined`);
-      $scope.players=g.gamePlayers;
+      $scope.players=data.g.gamePlayers;
     });
 
     $scope.typing = function(v){
       socket.emit('typing', `${$('#hidGameId').val()}~${$('#hidPlayerId').val()}~${v}`);
     }
     socket.on('onTyping',function(data){
-      if($('#hidGameId').val() == data[0]){
+      //if($('#hidGameId').val() == data[0]){
         $.each($scope.players,function(i,v){
           if(v.playerId == data[1]){
             v.playerTyping = `typing ${data[2]}`
           }
         });
-      }
+      //}
     });
 
     $scope.gameStart = function(){
       socket.emit('playStarted', `${$('#hidGameId').val()}`);
     }
-    socket.on('onPlayStarted',function(gameId){
-      //change icon
-      console.log('game start evt');
-      if($('#hidGameId').val() == gameId){
-        $('#btnGameStarted').hide();
-        $('#gameTimer').show();
-        $("#gameTimer").countdown({
-          "seconds": 5,
-          "warning-time": 3,
-          "normal-class":"countdown-normal",
-          "warning-class":"countdown-warning",
-          "stop-class":"countdown-stop"
-          });
-      }  
-      //start ticks 
-      //set state in db to started
+    socket.on('onPlayStarted',function(data){
+      if(data.err!=''){
+        console.log('game start err');
+        alert('Some error occured while starting the game\n please try again');
+      }
+      else{
+        //change icon
+        $scope.alphabet = data.alphabet;
+        console.log('game start evt');
+        if($('#hidGameId').val() == data.gameId){
+          $('#btnGameStarted').hide();
+          $('#gameTimer').show();
+          $("#gameTimer").countdown({
+            "seconds": data.gameTime,
+            "warning-time": 5,
+            "normal-class":"countdown-normal",
+            "warning-class":"countdown-warning",
+            "stop-class":"countdown-stop",
+            "warning-text":"submit NOW!!"
+            });
+        }  
+     }
     });
+    socket.on('onSubmit',function(playerId){
+      //if($('#hidGameId').val() == data[0]){
+        $.each($scope.players,function(i,v){
+          if(v.playerId == playerId){
+            v.playerTyping = `sub`
+          }
+        });
+      //}
+    });
+    
+    $scope.updateGame = function(){
+      socket.emit('submit', `${$('#hidGameId').val()}~${$('#hidPlayerId').val()}`);
+    }
 });

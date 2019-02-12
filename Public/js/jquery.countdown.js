@@ -12,7 +12,8 @@
             "normal-class": "",
             "warning-class": "",
             "stop-class": "",
-            "warning-time": 0
+            "warning-time": 0,
+            "warning-text":""
         }, options);
         var timer;
         var elem = this;
@@ -29,7 +30,12 @@
                 }
                 var res = Math.floor(settings['seconds'] / 60) < 10 ? "0" + Math.floor(settings['seconds'] / 60) : Math.floor(settings['seconds'] / 60);
                 res = res + ':' + (settings['seconds'] % 60 < 10 ? "0" + (settings['seconds'] % 60) : settings['seconds'] % 60);
-                $(elem).text(settings['prefix-text'] + res);
+                if($(elem).hasClass(settings['warning-class'])){
+                    $(elem).html(settings['prefix-text'] + res +'<br><b>'+settings['warning-text']+'</b>');
+                }
+                else{
+                    $(elem).html(settings['prefix-text'] + res);
+                }
             }
 
         }
