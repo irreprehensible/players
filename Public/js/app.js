@@ -118,7 +118,7 @@ app.controller('MainCtrl', function($scope,$http, socket) {
       //console.log('Timer Stopped - data = ', data);
       $scope.playerTime =data.seconds;
       if(data.seconds==0) //update only if not submitted
-        $scope.updateGame();
+        updateWOstop();
     });
     socket.on('onSubmit',function(data){
       let c=0;
@@ -160,6 +160,23 @@ app.controller('MainCtrl', function($scope,$http, socket) {
       }
       socket.emit('submit', submitObj);
     }
+    updateWOstop = function(){ //submit
+      $scope.loaderMsg='submitting...'
+      $scope.wait=true;
+      let wordsArray={
+        name:`${$scope.playingGame.name}-${$scope.playingGame.namePoints}`,
+        place:`${$scope.playingGame.place}-${$scope.playingGame.placePoints}`,
+        animal:`${$scope.playingGame.animal}-${$scope.playingGame.animalPoints}`,
+        thing:`${$scope.playingGame.thing}-${$scope.playingGame.thingPoints}`,
+      }
+      let submitObj={
+        gameId:$('#hidGameId').val(),
+        playerId:$('#hidPlayerId').val(),
+        words:wordsArray,
+        playerTime:$scope.playerTime
+      }
+      socket.emit('submit', submitObj);
+    }
 
     socket.on('onNewPlay',function(data){
       $.each($scope.players,function(i,v){
@@ -176,7 +193,6 @@ app.controller('MainCtrl', function($scope,$http, socket) {
         if($('#hidGameId').val() == data.gameId){
           $('#btnGameStarted').hide();
           $('#gameTimer').show();
-          $scope.$broadcast('timer-reset');
           $scope.$broadcast('timer-set-countdown',data.gameTime);
           $scope.$broadcast('timer-start');
         }  
