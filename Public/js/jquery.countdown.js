@@ -66,8 +66,9 @@
             timer = setInterval(function () {
                 settings['seconds']--;
                 draw();
-                if(settings['seconds']==0)
-                        alert('done')
+                if(settings['seconds']==0){
+                    callUpdate();
+                }
             }, 1000);
         }
     };

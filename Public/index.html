@@ -4,9 +4,11 @@
         <script src="/socket.io/socket.io.js"></script>
         <script src="http://code.jquery.com/jquery-1.8.3.js"></script>
         <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.1/angular.js"></script>
+        <script src="js/humanize-duration.js"></script>
+        <script src="js/moment.js"></script>
+        <script src="js/angular-timer.js"></script>
         <script src="js/app.js"></script>
-        <script src="js/jquery.countdown.js"></script>
-        <link href="css/jquery.countdown.css" rel="stylesheet">       
+           
         <link rel="stylesheet" href="//stackpath.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   </head>
 
@@ -17,6 +19,7 @@
     </div>
     <div class="well-sm" style="width:45%;margin:0 auto">
       <div class="row">
+            <div class="loader text-danger" data-ng-show="wait">{{loaderMsg}}</div>
         <div class="col-xs-3"><label>You are::</label></div>
         <div class="col-xs-3"><input type="text" ng-model="playerName"></div>
       </div>
@@ -60,7 +63,7 @@
                   </div>
                   <div class="col-xs-3 col-xs-3 text-center">
                       <div id="gameStartedIndicator" style="font-size: 23px;padding: 8px;" title="waiting to get started..."></div>
-                      <div id="gameTimer" style="display:none;background-color:whitesmoke">00:00</div>
+                      <div id="gameTimer" style="display:none;background-color:whitesmoke"><timer autostart="false" countdown="gameTime" interval="1000">{{mminutes}}:{{sseconds}}</timer></div>
                   </div>
               </div>
               <div class="row" style="padding-top:9px">
@@ -112,5 +115,4 @@
       </div>
     </div>
   </body>
-
 </html>

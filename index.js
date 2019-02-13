@@ -25,35 +25,70 @@ io.sockets.on('connection', function(socket) {
 					g=el;
 				}
 			});
-			var d = {g:g,err:''};
+			var d = {gameId:g.gameId,gamePlayers:g.gamePlayers,gameTime:30,err:''};
 			resolve(d);
 		})
 		p.then(data=>{io.sockets.in(`game-${g.gameId}`).emit('joined', data);})
 	});
 	socket.on('playStarted', async function(gameId) { 
+		let msg='Starting game...';
+		io.sockets.in(`game-${gameId}`).emit('onWait',msg); //send wait for everyone in the game
 		//GENERATE RANDOM ALPHABET
 		let a = alphabets[Math.floor(Math.random()*alphabets.length)];
 		//remove a
 		alphabets.slice(alphabets.indexOf(a),1);
-		let data={gameId :gameId,alphabet:a,gameStarted:true,gameStartedAt:Date.now(),gameTime:30};
+		let data={gameId:gameId,alphabet:a,alphabetArray:alphabets,gameStarted:true,gameStartedAt:Date.now(),gameTime:30};
 		const p = new Promise((resolve,reject)=>{
 			setTimeout(() => { // code to start game in Db
-				var d = {gameId:data.gameId,alphabet:data.alphabet,gameTime:data.gameTime,err:''};
+				var d = {gameId:data.gameId,alphabet:data.alphabet,alphabetArray:data.alphabetArray,gameTime:data.gameTime,err:''};
 				resolve(d);
 				//reject(d)
 			}, 5000);
 		});
-		p.then((data)=>{io.sockets.in(`game-${gameId}`).emit('onPlayStarted',data);})
+		
+		p.then((data)=>{
+			io.sockets.in(`game-${gameId}`).emit('onStopWait',msg); //stop waiting for everyone in the game
+			io.sockets.in(`game-${gameId}`).emit('onPlayStarted',data);
+		})
 
 	});
 	socket.on('typing', function(val) { 
 		val = val.split('~');
 		socket.broadcast.to(`game-${val[0]}`).emit('onTyping', val);
 	});
-	socket.on('submit', function(val) { 
-		val = val.split('~');
-		socket.broadcast.to(`game-${val[0]}`).emit('onSubmit', val[1]);
+	socket.on('submit', function(data) { 
+		const p = new Promise((resolve,reject)=>{
+			console.log(`submitted data - ${data}`);
+			setTimeout(() => { // code to submite in Db
+				var d = {gameId:data.gameId,playerId:data.playerId,err:''};
+				resolve(d);
+				//reject(d)
+			}, 5000);
+		});
+		p.then(data=>{io.sockets.in(`game-${data.gameId}`).emit('onSubmit', data);})
 	});
+
+	socket.on('newPlay',function(data){
+		let msg='next letter...';
+		io.sockets.in(`game-${gameId}`).emit('onWait',msg); //send wait for everyone in the game
+		//GENERATE RANDOM ALPHABET
+		let a = alphabets[Math.floor(Math.random()*alphabets.length)];
+		//remove a
+		alphabets.slice(alphabets.indexOf(a),1);
+		let data={gameId:gameId,alphabet:a,alphabetArray:alphabets,gameTime:30};
+		const p = new Promise((resolve,reject)=>{
+			setTimeout(() => { // code to start game in Db
+				var d = {gameId:data.gameId,alphabet:data.alphabet,alphabetArray:data.alphabetArray,gameTime:data.gameTime,err:''};
+				resolve(d);
+				//reject(d)
+			}, 5000);
+		});
+		
+		p.then((data)=>{
+			io.sockets.in(`game-${gameId}`).emit('onStopWait',msg); //stop waiting for everyone in the game
+			io.sockets.in(`game-${gameId}`).emit('onNewPlay',data);
+		})
+	})
 });
 
 app.post('/join',(req,res)=>{
