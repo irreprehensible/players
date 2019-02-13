@@ -70,9 +70,9 @@ app.controller('MainCtrl', function($scope,$http, socket) {
     }
     socket.on('joined',function(data) {
       let p='';
-      $.each($scope.players,function(i,v){
-        if(!data.gamePlayers.includes(v)){
-          p=v.playerName
+      data.gamePlayers.forEach(player => {
+        if($scope.players.indexOf(player)<0){
+          p=player.playerName;
         }
       });
       $scope.wait=false;
@@ -126,12 +126,18 @@ app.controller('MainCtrl', function($scope,$http, socket) {
         if(v.playerId == data.playerId){
           v.playerTyping = `sub`
         }
-        if(v.playerTyping==sub)
+        if(v.playerTyping=='sub')
           c++;
       });
       if($scope.players.length==c){
         //everyone has submitted so 
-        socket.emit('newPlay', data.gameId);
+        $scope.loaderMsg='Everyone submitted';
+        $scope.wait=true;
+        setTimeout(function() {
+          $scope.wait=false;
+          socket.emit('newPlay', data.gameId);  
+        }, 1300);
+        
       }
       $scope.wait=false;
       $scope.loaderMsg='loading...';
@@ -174,6 +180,12 @@ app.controller('MainCtrl', function($scope,$http, socket) {
           $scope.$broadcast('timer-set-countdown',data.gameTime);
           $scope.$broadcast('timer-start');
         }  
+      }
+    });
+
+    socket.on('onSaveError',function(data){
+      if($('#hidPlayerId').val()==data.playerId){
+        alert('Data save error!');
       }
     });
 });

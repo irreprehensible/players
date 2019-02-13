@@ -2,7 +2,6 @@ var express = require('express');
 var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
-var Q = require('q');
 
 app.use(express.static(__dirname + '/public'));
 app.use(express.json());
@@ -25,7 +24,7 @@ io.sockets.on('connection', function(socket) {
 					g=el;
 				}
 			});
-			var d = {gameId:g.gameId,gamePlayers:g.gamePlayers,gameTime:30,err:''};
+			var d = {gameId:g.gameId,gamePlayers:g.gamePlayers,gameTime:13,err:''};
 			resolve(d);
 		})
 		p.then(data=>{io.sockets.in(`game-${g.gameId}`).emit('joined', data);})
@@ -37,7 +36,7 @@ io.sockets.on('connection', function(socket) {
 		let a = alphabets[Math.floor(Math.random()*alphabets.length)];
 		//remove a
 		alphabets.slice(alphabets.indexOf(a),1);
-		let data={gameId:gameId,alphabet:a,alphabetArray:alphabets,gameStarted:true,gameStartedAt:Date.now(),gameTime:30};
+		let data={gameId:gameId,alphabet:a,alphabetArray:alphabets,gameStarted:true,gameStartedAt:Date.now(),gameTime:13};
 		const p = new Promise((resolve,reject)=>{
 			setTimeout(() => { // code to start game in Db
 				var d = {gameId:data.gameId,alphabet:data.alphabet,alphabetArray:data.alphabetArray,gameTime:data.gameTime,err:''};
@@ -57,31 +56,35 @@ io.sockets.on('connection', function(socket) {
 		socket.broadcast.to(`game-${val[0]}`).emit('onTyping', val);
 	});
 	socket.on('submit', function(data) { 
+		io.sockets.in(`game-${data.gameId}`).emit('onSubmit', data);
 		const p = new Promise((resolve,reject)=>{
 			console.log(`submitted data - ${data}`);
 			setTimeout(() => { // code to submite in Db
 				var d = {gameId:data.gameId,playerId:data.playerId,err:''};
 				resolve(d);
 				//reject(d)
-			}, 5000);
+			}, 2000);
 		});
-		p.then(data=>{io.sockets.in(`game-${data.gameId}`).emit('onSubmit', data);})
+		p.then(data=>{
+			if(data.err!='')
+				io.sockets.in(`game-${data.gameId}`).emit('onSaveError', data);
+		})
 	});
 
-	socket.on('newPlay',function(data){
+	socket.on('newPlay',function(gameId){
 		let msg='next letter...';
 		io.sockets.in(`game-${gameId}`).emit('onWait',msg); //send wait for everyone in the game
 		//GENERATE RANDOM ALPHABET
 		let a = alphabets[Math.floor(Math.random()*alphabets.length)];
 		//remove a
 		alphabets.slice(alphabets.indexOf(a),1);
-		let data={gameId:gameId,alphabet:a,alphabetArray:alphabets,gameTime:30};
+		let data={gameId:gameId,alphabet:a,alphabetArray:alphabets,gameTime:13};
 		const p = new Promise((resolve,reject)=>{
 			setTimeout(() => { // code to start game in Db
 				var d = {gameId:data.gameId,alphabet:data.alphabet,alphabetArray:data.alphabetArray,gameTime:data.gameTime,err:''};
 				resolve(d);
 				//reject(d)
-			}, 5000);
+			}, 3000);
 		});
 		
 		p.then((data)=>{
